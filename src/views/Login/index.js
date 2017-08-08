@@ -23,7 +23,7 @@ const parseHash = () => new Promise((resolve, reject) => {
 });
 
 const getCredentials = async (accessToken) => {
-  const response = await fetch('https://taskcluster-login.ngrok.io/v1/oidc-credentials/mozilla-auth0', {
+  const response = await fetch(process.env.AUTH_LOGIN_API, {
     headers: new Headers({
       Authorization: `Bearer ${accessToken}`
     })
@@ -58,13 +58,24 @@ export default class Login extends PureComponent {
       // eslint-disable-next-line no-unused-expressions
       window.opener ? window.close() : history.push('/');
     } catch (err) {
+      saveCredentials(null);
+      localStorage.removeItem('auth-profile');
       this.setState({ error: err });
     }
   }
 
   render() {
     if (this.state.error) {
-      return <pre>{`${this.state.error}`}</pre>;
+      return (
+        <div style={{ margin: 80 }}>
+          {this.state.error.errorDescription &&
+            <h3 style={{ fontWeight: 'bold' }}>{this.state.error.errorDescription}</h3>}
+          {this.state.error instanceof Error && <h3 style={{ fontWeight: 'bold' }}>{this.state.error.toString()}</h3>}
+          <pre>
+            {this.state.error instanceof Error ? process.env.AUTH_LOGIN_API : JSON.stringify(this.state.error, null, 2)}
+          </pre>
+        </div>
+      );
     }
 
     return null;
