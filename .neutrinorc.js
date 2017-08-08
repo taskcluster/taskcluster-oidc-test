@@ -48,7 +48,9 @@ module.exports = {
           'process.env.AUTH_DOMAIN': JSON.stringify('auth-dev.mozilla.auth0.com'),
           'process.env.AUTH_CLIENT_ID': JSON.stringify('AKWT8X3N1Qm4YyG6zQjfM22Fo6mblkhv'),
           'process.env.AUTH_AUDIENCE': JSON.stringify('taskcluster-login.ngrok.io'),
-          'process.env.AUTH_REDIRECT_URI': JSON.stringify('http://localhost:5050/login'),
+          'process.env.AUTH_REDIRECT_URI': process.env.NODE_ENV === 'production' ?
+            JSON.stringify('https://taskcluster-oidc-test.herokuapp.com/login') :
+            JSON.stringify('http://localhost:5050/login'),
           'process.env.AUTH_RESPONSE_TYPE': JSON.stringify('token id_token'),
           'process.env.AUTH_SCOPE': JSON.stringify('get-credentials openid profile')
         }]);
