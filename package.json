@@ -6,7 +6,11 @@
   "license": "MIT",
   "scripts": {
     "start": "neutrino start",
-    "build": "neutrino build"
+    "lint": "neutrino lint",
+    "build": "neutrino build",
+    "test": "yarn lint && yarn build",
+    "heroku-prebuild": "yarn",
+    "heroku-postbuild": "yarn build"
   },
   "dependencies": {
     "auth0-js": "^8.8.0",
