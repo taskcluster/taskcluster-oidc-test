@@ -1,4 +1,5 @@
 const { DefinePlugin } = require('webpack');
+const merge = require('deepmerge');
 
 module.exports = {
   use: [
@@ -44,16 +45,28 @@ module.exports = {
 
       neutrino.config
         .plugin('define')
-        .use(DefinePlugin, [{
-          'process.env.AUTH_DOMAIN': JSON.stringify('auth-dev.mozilla.auth0.com'),
-          'process.env.AUTH_CLIENT_ID': JSON.stringify('AKWT8X3N1Qm4YyG6zQjfM22Fo6mblkhv'),
-          'process.env.AUTH_AUDIENCE': JSON.stringify('taskcluster-login.ngrok.io'),
-          'process.env.AUTH_REDIRECT_URI': process.env.NODE_ENV === 'production' ?
-            JSON.stringify('https://taskcluster-oidc-test.herokuapp.com/login') :
-            JSON.stringify('http://localhost:5050/login'),
-          'process.env.AUTH_RESPONSE_TYPE': JSON.stringify('token id_token'),
-          'process.env.AUTH_SCOPE': JSON.stringify('get-credentials openid profile')
-        }]);
+          // all environments
+          .use(DefinePlugin, [{
+            'process.env.AUTH_RESPONSE_TYPE': JSON.stringify('token id_token'),
+            'process.env.AUTH_SCOPE': JSON.stringify('get-credentials openid profile'),
+          }])
+          .when(process.env.NODE_ENV === 'production',
+            // only in production
+            plugin => plugin.tap(([options]) => [merge(options, {
+              'process.env.AUTH_DOMAIN': JSON.stringify('auth.mozilla.auth0.com'),
+              'process.env.AUTH_CLIENT_ID': JSON.stringify('yafz2QVnInggaWLq3C3rQoZSfXH9en5o'),
+              'process.env.AUTH_AUDIENCE': JSON.stringify('login.taskcluster.net'),
+              'process.env.AUTH_REDIRECT_URI': JSON.stringify('https://taskcluster-oidc-test.herokuapp.com/login'),
+              'process.env.AUTH_LOGIN_API': JSON.stringify('https://login.taskcluster.net/v1/oidc-credentials/mozilla-auth0')
+            })]),
+            // not in production, e.g. development
+            plugin => plugin.tap(([options]) => [merge(options, {
+              'process.env.AUTH_DOMAIN': JSON.stringify('auth-dev.mozilla.auth0.com'),
+              'process.env.AUTH_CLIENT_ID': JSON.stringify('AKWT8X3N1Qm4YyG6zQjfM22Fo6mblkhv'),
+              'process.env.AUTH_AUDIENCE': JSON.stringify('taskcluster-login.ngrok.io'),
+              'process.env.AUTH_REDIRECT_URI': JSON.stringify('http://localhost:5050/login'),
+              'process.env.AUTH_LOGIN_API': JSON.stringify('https://taskcluster-login.ngrok.io/v1/oidc-credentials/mozilla-auth0')
+            })]));
 
       neutrino.config.module
         .rule('plain-style')
