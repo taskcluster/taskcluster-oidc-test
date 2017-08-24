@@ -50,11 +50,11 @@ export default class Login extends PureComponent {
 
     try {
       const result = await parseHash();
-      const { credentials, expiration } = await getCredentials(result.accessToken);
+      const { credentials, expires } = await getCredentials(result.accessToken);
 
       saveCredentials(credentials);
       localStorage.setItem('auth-profile', JSON.stringify(result.idTokenPayload));
-      localStorage.setItem('auth-expiration', expiration);
+      localStorage.setItem('auth-expiration', expires);
 
       // eslint-disable-next-line no-unused-expressions
       window.opener ? window.close() : history.push('/');
