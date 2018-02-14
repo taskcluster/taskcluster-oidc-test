@@ -48,7 +48,7 @@ module.exports = {
           // all environments
           .use(DefinePlugin, [{
             'process.env.AUTH_RESPONSE_TYPE': JSON.stringify('token id_token'),
-            'process.env.AUTH_SCOPE': JSON.stringify('full-user-credentials openid profile'),
+            'process.env.AUTH_SCOPE': JSON.stringify('taskcluster-credentials openid profile'),
           }])
           .when(process.env.NODE_ENV === 'production',
             // only in production
